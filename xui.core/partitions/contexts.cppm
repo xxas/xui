@@ -1,10 +1,10 @@
 export module xui.core : contexts;
+// ^^^ [[xui.core]] callback contexts vvv
 
 import std;
 
 namespace xui {
 	export struct graphics_ctx {
-
 	}; //~ graphics ctx
 
 	export struct input_ctx {

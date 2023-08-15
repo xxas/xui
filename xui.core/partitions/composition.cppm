@@ -1,8 +1,8 @@
 export module xui.core : composition;
-// ^^^ [[xui.core]] standard object traits vvv
+// ^^^ [[xui.core]] object composition containing traits and callables vvv
 
 import std;
-import :type_traits;
+import :functional;
 
 // vvv constant callable value vvv.
 namespace xui {

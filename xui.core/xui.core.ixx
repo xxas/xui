@@ -1,15 +1,17 @@
 export module xui.core;
+// ^^^ [[xui.core]] vvv
 
-//  object composition
-// >>> static polymorphic callbacks using meta-programming.
-// >>> dynamically allocated object traits.
+// composition
+//	>>> object callables
+//	>>> object member traits
 export import :composition;
 
-//  object linkage
-//	>>> 
+// linkage
+//	>>> object linkage
+//	>>> compile-time argument forwarding
 export import :linkage;
 
-//  callback contextuals
+//  contexts
 //		>>> HID output contexts
 //		>>> Graphics output contexts
 export import :contexts;

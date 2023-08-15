@@ -1,9 +1,10 @@
 export module xui.core : linkage;
-// ^^^ [[xui.core]] standard invocable forwarding vvv
+// ^^^ [[xui.core]] composition object linkages and forwarding vvv
 
 import std;
-import :composition;
+import :functional;
 import :type_traits;
+import :composition;
 
 namespace xui {
 	export template<class... Ts>
@@ -46,18 +47,18 @@ namespace xui {
 		constexpr auto operator()(Ts&&... Args) noexcept(is_nothrow_invocable_v<Ts...>) {
 			std::apply([&](const auto&... Callables) {
 				(std::invoke([&]<class T>(const T& Callable) {
-					xui::invoke_optionally(Callable.value, options<traits_t&, linkage_t&>{ object.traits, linkages },
+					xui::invoke_optionally(Callable.value, xui::options<traits_t&, linkage_t&>{ object.traits, linkages },
 						std::forward<Ts>(Args)...);
 				}, Callables), ...);
 			}, callbacks_t::callables);
 		};
 	}; //~ linker
-}; //~ details
+}; //~ xui
 
 namespace xui {
 	export template<class T, class... Ts>
 	constexpr auto link(T&& Object, Ts&&... Objects) noexcept {
-		return linker<T, Ts...>{ 
+		return xui::linker<T, Ts...>{ 
 				.object{ std::move(Object) }, 
 				.linkages{.objects{ std::move(Objects)...}}};
 	};
