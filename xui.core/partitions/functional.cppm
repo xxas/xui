@@ -4,37 +4,49 @@ export module xui.core : functional;
 import std;
 
 namespace xui {
+	// a group of arguments.
 	export template<class... Ts>
-	struct options {
-		std::tuple<Ts...> arguments;
+	struct arguments {
+		std::tuple<Ts...> args;
 
-		constexpr options(Ts&&... Args)
-			: arguments{ std::forward<Ts>(Args)... } {}
+		constexpr arguments(Ts&&... Args)
+			: args{ std::forward<Ts>(Args)... } {};
 	}; //~ options
 
 	template<class Callable, class T, class... Ts>
-	struct is_nothrow_optional_invoke : std::true_type{};
+	struct is_nothrow_optional_invoke : std::true_type {};
 
 	template<class Callable, class T, class... T0s, class... T1s>
-	struct is_nothrow_optional_invoke<Callable, xui::options<T, T0s...>, T1s...> :
+	struct is_nothrow_optional_invoke<Callable, xui::arguments<T, T0s...>, T1s...> :
 		std::conditional_t<std::invocable<Callable, T, T1s...>, std::is_nothrow_invocable<Callable, T, T1s...>, 
-						 is_nothrow_optional_invoke<Callable, xui::options<T0s...>, T1s...>>
-	{}; //~ is nothrow optional invoke
+						 is_nothrow_optional_invoke<Callable, xui::arguments<T0s...>, T1s...>> {};
 
+	// forwards a group of arguments.
+	export template<class... Ts>
+	constexpr xui::arguments<Ts&...> forwards(Ts&&... Vals) noexcept {
+		return xui::arguments<Ts&...>{std::forward<Ts>(Vals)...};
+	};
+ 
 	export template<class Callable, class T, class... Ts>
 	constexpr inline auto is_nothrow_optional_invoke_v = xui::is_nothrow_optional_invoke<Callable, T, Ts...>::value;
 
+
+	// optionally invoke `callable` when it meets a combination of `Opt(ion)s` and Arg(ument)s.
 	struct optional_invoker {
 		template<class T, class... T0s>
-		constexpr auto operator()(T&& Callable, xui::options<>&& Opts, T0s&&... Args) const noexcept {};
+		constexpr auto operator()(T&& Callable, xui::arguments<>&& Opts, T0s&&... Args) const noexcept {
+			if constexpr (std::invocable<T, T0s...>) { // Provided with exclusively `Args...`.
+				return std::invoke(std::forward<T>(Callable), std::forward<T0s>(Args)...);
+			};
+		};
 
 		template<class T, class T0, class... T0s, class... T1s>
-		constexpr auto operator()(T&& Callable, xui::options<T0, T0s...>&& Opts, T1s&&... Args) const noexcept(is_nothrow_optional_invoke_v<T, xui::options<T0, T0s...>, T1s...>) {
-			if constexpr (std::invocable<T, T0, T1s...>) {
-				return std::invoke(std::forward<T>(Callable), std::forward<T0>(std::get<0>(Opts.arguments)),  std::forward<T1s>(Args)...);
+		constexpr auto operator()(T&& Callable, xui::arguments<T0, T0s...>&& Opts, T1s&&... Args) const noexcept(is_nothrow_optional_invoke_v<T, xui::arguments<T0, T0s...>, T1s...>) {
+			if constexpr(std::invocable<T, T0, T1s...>) { // <<< combination of xui::arguments<...> followed by `Args...`.
+				return std::invoke(std::forward<T>(Callable), std::forward<T0>(std::get<0>(Opts.args)),  std::forward<T1s>(Args)...);
 			}
-			else {
-				return std::invoke(*this, std::forward<T>(Callable), xui::options<T0s...>(std::forward<T0s>(std::get<T0s>(Opts.arguments))...),
+			else { // <<< recursively scan options and arguments.
+				return std::invoke(*this, std::forward<T>(Callable), xui::arguments<T0s...>(std::forward<T0s>(std::get<T0s>(Opts.args))...),
 					std::forward<T1s>(Args)...);
 			};
 		};
