@@ -1,10 +1,12 @@
-export module xui.core : linkage;
+export module xui.core : object.linkage;
 // ^^^ [[xui.core]] composition object linkages and forwarding vvv
 
+import "headers\\cmacros.hpp";
+
 import std;
-import :functional;
-import :type_traits;
-import :composition;
+import :common.functional;
+import :common.type_traits;
+import :object.composition;
 
 namespace xui {
 	export template<class... Ts>
@@ -25,7 +27,7 @@ namespace xui {
 
 		objects_t objects;
 
-		constexpr linkage(Ts&&... Objs) noexcept {
+		xui_inline constexpr linkage(Ts&&... Objs) noexcept {
 			if constexpr (is_dynamically_allocated_v) {
 				(objects.push_back(std::make_unique<Ts>(std::move(Objs))), ...);
 			} 
@@ -35,7 +37,7 @@ namespace xui {
 		};
 
 		template<class... T0s> 
-		constexpr auto operator()(T0s&&... Args) {
+		xui_inline constexpr auto operator()(T0s&&... Args) {
 			std::ranges::for_each(objects, [&](auto&& Element) {
 				std::visit([&]<class T>(T& Visit) {
 					if constexpr(std::invocable<T, T0s...>) {
@@ -64,8 +66,8 @@ namespace xui {
 		composition_t object;
 		linkage_t linkages;
 			
-		constexpr linker(xui::linker<composition_t, Objects...>&&) = default;
-		constexpr linker(composition_t&& Obj, Objects&&... Objs) noexcept
+		xui_inline constexpr linker(xui::linker<composition_t, Objects...>&&) = default;
+		xui_inline constexpr linker(composition_t&& Obj, Objects&&... Objs) noexcept
 			: object{std::move(Obj)}, linkages{std::move(Objs)...} {};
 
 		template<class... Ts>
@@ -75,7 +77,7 @@ namespace xui {
 		};
 
 		template<class... Ts>
-		constexpr auto operator()(Ts&&... Args) noexcept(is_nothrow_invocable_v<Ts...>) {
+		xui_inline constexpr auto operator()(Ts&&... Args) noexcept(is_nothrow_invocable_v<Ts...>) {
 			std::apply([&](const auto&... Callables) {
 				(std::invoke([&]<class T>(const T& Callable) {
 					xui::invoke_optionally(Callable.value, xui::forwards(object.traits, linkages),
@@ -90,7 +92,7 @@ namespace xui {
 	// constructs and returns `xui::linker` instance by consuming ownership of 
 	// provided `Object` and any subsequent `Objects`.
 	export template<class T, class... Ts>
-	constexpr auto link(T&& Object, Ts&&... Objects) noexcept {
-		return xui::linker<T, Ts...>{ std::move(Object), std::move(Objects)... };
+	xui_inline constexpr auto link(T&& Object, Ts&&... Objects) noexcept {
+		return xui::linker<T, Ts...>{std::move(Object), std::move(Objects)...};
 	};
 }; //~ xui

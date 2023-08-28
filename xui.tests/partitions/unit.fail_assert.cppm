@@ -1,14 +1,13 @@
-export module xui.test : object_compositions;
+export module xui.test : unit.fail_assert;
 // ^^^ [[xui.test]] unit test for invoking and constructing object compositions vvv
+
+import "headers\\cmacros.hpp";
 
 import std;
 import xui.core;
 
 namespace xui::test {
-	namespace spec {
-	}; //~ spec(ification)
-
-	export auto object_compositions() {
-
+	export auto fail_assert() {
+		xui_assert(false, "Test assert");
 	};
 }; //~ xui::test

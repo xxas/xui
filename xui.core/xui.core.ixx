@@ -1,14 +1,20 @@
 export module xui.core;
 // ^^^ [[xui.core]] vvv
 
-export import std;
+// Type traits
+//	>>> Common metaprogramming.
+export import :common.type_traits;
+
+// Functional
+//	>>> Optional argument invoking.
+export import :common.functional;
 
 // composition
 //	>>> object callables
-//	>>> object member traits
-export import :composition;
+//	>>> object traits
+export import :object.composition;
 
 // linkage
 //	>>> object linkage
 //	>>> compile-time argument forwarding
-export import :linkage;
+export import :object.linkage;

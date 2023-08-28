@@ -1,4 +1,4 @@
-export module xui.core : type_traits;
+export module xui.core : common.type_traits;
 // ^^^ [[xui.core]] type meta-programming vvv
 
 import std;
