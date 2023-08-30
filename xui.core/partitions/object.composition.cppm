@@ -1,5 +1,5 @@
 export module xui.core : object.composition;
-// ^^^ [[xui.core]] object composition containing traits and callables vvv
+// ^^^ [[xui.core]] object callback and trait compositing vvv
 
 import "headers\\cmacros.hpp";
 
@@ -63,8 +63,7 @@ namespace xui {
 		xui_inline constexpr auto operator()(Ts&&... Args) noexcept(is_nothrow_invocable_v<Ts...>) {
 			std::apply([&](const auto&... Callables) {
 				(std::invoke([&]<class T>(const T& Callable) {
-					xui::invoke_optionally(Callable.value, xui::forwards(traits),
-						std::forward<Ts>(Args)...);
+					xui::invoke_optionally(Callable.value, xui::forwards(traits), std::forward<Ts>(Args)...);
 				}, Callables), ...);
 			}, callbacks_t::callables);
 		};

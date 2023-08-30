@@ -1,5 +1,5 @@
 export module xui.core : object.linkage;
-// ^^^ [[xui.core]] composition object linkages and forwarding vvv
+// ^^^ [[xui.core]] linking composite objects together via callbacks vvv
 
 import "headers\\cmacros.hpp";
 
@@ -28,8 +28,8 @@ namespace xui {
 		objects_t objects;
 
 		xui_inline constexpr linkage(Ts&&... Objs) noexcept {
-			if constexpr (is_dynamically_allocated_v) {
-				(objects.push_back(std::make_unique<Ts>(std::move(Objs))), ...);
+			if constexpr(is_dynamically_allocated_v) {
+				(objects.emplace_back(std::make_unique<Ts>(std::move(Objs))), ...);
 			} 
 			else {
 				(objects.emplace_back(std::move(Objs)), ...);
@@ -72,16 +72,14 @@ namespace xui {
 
 		template<class... Ts>
 		constexpr static bool is_nothrow_invocable_v{
-			(xui::is_nothrow_optional_invoke_v<typename decltype(Callbacks)::type,
-				xui::arguments<traits_t&, linkage_t&>, Ts...> && ...)
+			(xui::is_nothrow_optional_invoke_v<typename decltype(Callbacks)::type, xui::arguments<traits_t&, linkage_t&>, Ts...> && ...)
 		};
 
 		template<class... Ts>
 		xui_inline constexpr auto operator()(Ts&&... Args) noexcept(is_nothrow_invocable_v<Ts...>) {
 			std::apply([&](const auto&... Callables) {
 				(std::invoke([&]<class T>(const T& Callable) {
-					xui::invoke_optionally(Callable.value, xui::forwards(object.traits, linkages),
-						std::forward<Ts>(Args)...);
+					xui::invoke_optionally(Callable.value, xui::forwards(object.traits, linkages), std::forward<Ts>(Args)...);
 				}, Callables), ...);
 			}, callbacks_t::callables);
 		};

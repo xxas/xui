@@ -1,5 +1,5 @@
 export module xui.core : common.type_traits;
-// ^^^ [[xui.core]] type meta-programming vvv
+// ^^^ [[xui.core]] type metaprogramming vvv
 
 import std;
 
@@ -15,8 +15,7 @@ namespace xui {
 		: std::type_identity<std::tuple<Ts...>> {};
 
 	template<class T, class... Ts, class... RTs>
-	struct remove_duplicate_tuple_elements<std::tuple<T, Ts...>, std::tuple<RTs...>>
-		: xui::remove_duplicate_tuple_elements<std::tuple<Ts...>,
+	struct remove_duplicate_tuple_elements<std::tuple<T, Ts...>, std::tuple<RTs...>> : xui::remove_duplicate_tuple_elements<std::tuple<Ts...>,
 		std::conditional_t<xui::same_as<T, RTs...>, std::tuple<RTs...>, std::tuple<RTs..., T>>> {};
 
 	template<class... Ts>
@@ -38,7 +37,7 @@ namespace xui {
 	using variants = xui::tuple_to_variant_t<xui::remove_duplicate_tuple_elements_t<std::tuple<Ts...>>>;
 
 	template<class T>
-	struct is_smart_pointer: std::false_type {};
+	struct is_smart_pointer : std::false_type {};
 
 	template<class T>
 	struct is_smart_pointer<std::unique_ptr<T>> : std::true_type {};

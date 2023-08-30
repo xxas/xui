@@ -1,12 +1,12 @@
-export module xui.test : unit.hashing_elements;
-// ^^^ [[xui.test]] unit test for object linkage and argument forwarding vvv
+export module xui.test_units : unit.hashing_elements;
+// ^^^ [[xui.test_units]] unit test for object linkage and argument forwarding vvv
 
 import "headers\\cmacros.hpp";
 
 import std;
 import xui.core;
 
-namespace xui::test {
+namespace xui::test_units {
 	namespace spec {
 		template<class T>
 		xui_inline constexpr auto as_bytes(const T& Val) noexcept {
@@ -80,7 +80,7 @@ namespace xui::test {
 		using numbers = xui::composition<spec::hashable_callbacks, spec::number_range_traits<T>>;
 	}; //~ spec(ification)
 
-	export auto hashing_elements() {
+	export void hashing_elements() {
 		auto g0 = xui::link(spec::group{}, spec::string{"Hello"}, spec::string{"World!"},
 				spec::numbers<float>{{5.80f, 1.8415f, -0.3f, 900.5f, -3.0f}});
 		 

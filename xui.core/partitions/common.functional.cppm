@@ -1,5 +1,5 @@
 export module xui.core : common.functional;
-// ^^^ [[xui.core]] functional meta-programming vvv
+// ^^^ [[xui.core]] functional metaprogramming vvv
 
 import "headers\\cmacros.hpp";
 
@@ -11,7 +11,7 @@ namespace xui {
 	struct arguments {
 		std::tuple<Ts...> args;
 
-		xui_inline constexpr arguments(Ts&&... Args)
+		xui_inline constexpr arguments(Ts&&... Args) noexcept(std::is_nothrow_constructible_v<decltype(args), Ts&&...>)
 			: args{ std::forward<Ts>(Args)... } {};
 	}; //~ options
 
@@ -25,7 +25,7 @@ namespace xui {
 
 	// forwards a group of arguments.
 	export template<class... Ts>
-	xui_inline constexpr xui::arguments<Ts&...> forwards(Ts&&... Vals) noexcept(std::is_nothrow_constructible_v<xui::arguments<Ts&...>, Ts&&...>) {
+	xui_inline constexpr auto forwards(Ts&&... Vals) noexcept(std::is_nothrow_constructible_v<xui::arguments<Ts&...>, Ts&&...>) {
 		return xui::arguments<Ts&...>{std::forward<Ts>(Vals)...};
 	};
  
